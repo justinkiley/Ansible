@@ -1,0 +1,8 @@
+RHEL basic hardening
+  default passwords
+  update all packages
+  SSH hardening
+  Syslog to a SIEM (variable probably)
+  other basic checks?
+Tomcat/Apache hardening
+Check STIGS, translate into playbooks, other bookmarked stuff
