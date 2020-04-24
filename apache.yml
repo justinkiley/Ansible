@@ -1,6 +1,11 @@
+#reference https://geekflare.com/apache-web-server-hardening-security/
+#/etc/httpd/conf/httpd.conf - config file of interest
+
 ---
-- hosts: apache
-  remote_user: root
+#- hosts: apache
+- hosts: all
+  #remote_user: root
+  become: true
   tasks:
   - name: update apache package
     yum:
@@ -14,8 +19,41 @@
     lineinfile:
       path: /etc/httpd/conf/httpd.conf
       line: 'ServerTokens Prod'
-- name: add to ansible hosts file
-  lineinfile:
-    path: /etc/httpd/conf/httpd.conf
-    insertafter: '<Directory\s.*?>'
-    line: 'Options -Indexes'
+  - name: disable directory browser listing
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      insertafter: '<Directory\s.*?>'
+      line: 'Options -Indexes'
+  - name: disable tag enumeration
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      line: 'FileETag None'
+  - name: create apache group
+    group:
+      name: apache
+      state: present
+  - name: create apache user
+    user:
+      name: apache
+      comment: user to run httpd daemon
+      group: apache
+  - name: ensure apache runs as non-root user
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^User/s'
+      line: 'User apache'
+  - name: ensure apache runs as non-root user
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^Group/s'
+      line: 'Group apache'
+#  - name: Change file ownership, group and permissions
+#    file:
+#      path: /opt/apache
+#      owner: foo
+#      group: foo
+  handlers:
+  - name: restart apache
+    service: 
+      name: apache2
+      state: restarted
