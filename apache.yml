@@ -1,0 +1,21 @@
+---
+- hosts: apache
+  remote_user: root
+  tasks:
+  - name: update apache package
+    yum:
+      name: httpd
+      state: latest
+  - name: remove server banner info 1 of 2
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      line: 'ServerSignature Off'
+  - name: remove server banner info 2 of 2
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      line: 'ServerTokens Prod'
+- name: add to ansible hosts file
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    insertafter: '<Directory\s.*?>'
+    line: 'Options -Indexes'
